@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% include '_navbar.html' %}
+{% block content%}
+<h1>Dashboard</h1>
+<h4>Welcome {{ user.username }}!!</h4>
+<h3>The balance of your accounts is:</h3>
+{% for account in accounts %}
+    <h4>{{ account.id }}: ${{ account.balance }}</h4>
+{% endfor %}
+<br>
+<h3>Choose an action:</h3>
+<div class="row">
+    <div class="col-sm-4 mb-3 mb-sm-0">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Deposit</h5>
+          <p class="card-text">Click here to deposit money into your account.</p>
+          <a href="/deposit" class="btn btn-primary">Make a deposit</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Withdraw</h5>
+          <p class="card-text">Click here to withdraw money from your account.</p>
+          <a href="/withdraw" class="btn btn-primary">Withdraw money</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Transfer</h5>
+            <p class="card-text">Click here to Transfer money to another account.</p>
+            <a href="/withdraw" class="btn btn-primary">Transfer money</a>
+          </div>
+        </div>
+      </div>
+</div>
+{% endblock %}

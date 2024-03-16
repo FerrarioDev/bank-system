@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ text }}</h1>
+<form method="POST">
+    <label for="amount">Amount:</label><br>
+    <input type="number" id="amount" name="amount" required><br>
+    <label for="account">Select account:</label><br>
+    <select id="account" name="account" required>
+        {% for account in accounts %}
+            <option value="{{ account.id }}" {% if selected_account and selected_account.id == account.id %}selected{% endif %}>{{ account.id }}</option>
+        {% endfor %}
+        {% if not accounts %}
+            <option value="" disabled selected>No accounts available</option>
+        {% endif %}
+        
+    </select><br>
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+    <input type="submit" value="{{ btn_action }}">
+</form>
+{% endblock %}

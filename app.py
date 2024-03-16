@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Length, EqualTo
 from wtforms import StringField, PasswordField, SubmitField
@@ -59,10 +59,49 @@ class login_form(FlaskForm):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# index routes
 @app.route('/')
 def home():
     return render_template('index.html', title = 'Home')
 
+@app.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    user = User.query.filter_by(id=current_user.id).first()
+    accounts = Account.query.filter_by(user_id=user.id).all()
+    return render_template('dashboard.html', title='Dashboard', accounts=accounts, user=user)
+
+# Money handling routes
+@app.route('/deposit', methods=['GET', 'POST'])
+@login_required
+def deposit():
+    accounts = Account.query.filter_by(user_id=current_user.id).all() # Get all accounts for the current user
+    if request.method == 'POST':
+        amount = request.form['amount']
+        selected_account = Account.query.filter_by(id=request.form['account']).first() # Get the selected account
+        selected_account.balance += int(amount)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('operations.html', title='Deposit', text='Deposit money', btn_action='Deposit', accounts=accounts)
+
+@app.route('/withdraw', methods=['GET', 'POST'])
+@login_required
+def withdraw():
+    accounts = Account.query.filter_by(user_id=current_user.id).all() # Get all accounts for the current user
+    if request.method == 'POST':
+        amount = request.form['amount']
+        selected_account = Account.query.filter_by(id=request.form['account']).first() # Get the selected account
+        if int(amount) > selected_account.balance:
+            flash('Insufficient funds')
+            flash(f'Your balance is {selected_account.balance}')
+            return redirect(url_for('withdraw'))
+        selected_account.balance -= int(amount)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('operations.html', title='Withdraw', text='Withdraw money', btn_action='Withdraw', accounts=accounts)
+
+
+# Auth system
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = registration_form()
@@ -98,7 +137,7 @@ def login():
         if user:
             if bcrypt.check_password_hash(user.password, password):
                 login_user(user)
-                return redirect(url_for('home'))
+                return redirect(url_for('dashboard'))
             else:
                 user.login_attempts += 1
                 db.session.commit()
