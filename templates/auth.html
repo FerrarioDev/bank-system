@@ -23,8 +23,6 @@
                     <h2>User Authentication in Flask</h2>
                     <h5 class="text-primary">{{ text }}</h5>
                 </div>
-                
-                {% if request.path == '/register' %}
                 <div class="form-group mb-3">
                     {{ form.username(class_="form-control",placeholder="Username")}}
                 </div>
@@ -34,8 +32,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor%}
-                {% endif%}
-                
                 <div class="form-group mb-3">
                     {{ form.password(class_="form-control",placeholder="Password")}}
                 </div>
