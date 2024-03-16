@@ -100,6 +100,24 @@ def withdraw():
         return redirect(url_for('dashboard'))
     return render_template('operations.html', title='Withdraw', text='Withdraw money', btn_action='Withdraw', accounts=accounts)
 
+@app.route('/transfer', methods=['GET', 'POST'])
+@login_required
+def transfer():
+    accounts = Account.query.filter_by(user_id=current_user.id).all()
+    recipient_accounts = Account.query.all()
+    if request.method == 'POST':
+        amount = request.form['amount']
+        selected_account = Account.query.filter_by(id=request.form['account']).first()
+        selected_recipient = Account.query.filter_by(id=request.form['recipient']).first()
+        if int(amount) > selected_account.balance:
+            flash('Insufficient funds')
+            flash(f'Your balance is {selected_account.balance}')
+            return redirect(url_for('transfer'))
+        selected_account.balance -= int(amount)
+        selected_recipient.balance += int(amount)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('operations.html', title='Transfer', text='Transfer money', btn_action='Transfer', accounts=accounts, recipient_accounts=recipient_accounts)
 
 # Auth system
 @app.route('/register', methods=['GET', 'POST'])

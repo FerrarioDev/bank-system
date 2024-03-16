@@ -15,12 +15,21 @@
         {% endif %}
         
     </select><br>
+    {% if request.path == '/transfer' %}
+        <select name="recipient" id="recipient">
+            {% for account in recipient_accounts %}
+                <option value="{{ account.id }}">{{ account.id }}</option>
+            {% endfor %}
+        </select>
+    {% endif %}
     {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>
                 {% for message in messages %}
                     <li>{{ message }}</li>
+                    
                 {% endfor %}
+                    
                 </ul>
             {% endif %}
     {% endwith %}
